@@ -1,10 +1,9 @@
-﻿using Entities.Abstract;
+﻿using Core.Entites;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 
-namespace DataAccess.Abstract
+namespace Core.DataAccess
 {
     // Burada T yi kısıtlamak istiyoruz
     // Bu sayede sadece bizim Db deki tablo class larımızı verileceğiz
@@ -15,7 +14,7 @@ namespace DataAccess.Abstract
     // new(): new'lenebilir olmalı. IEntity interface olduğu için ve interface ler new'lenemez
     //
     // YANİ "where T: class, IEntity, new()" bu ifade;
-    // class olamalı,
+    // class olmalı,
     // IEntity olabilir veya IEntity den implemente bir nesne olabilir,
     // new'lenebilir olmalı yani interface olmamalı
     public interface IEntityRepository<T> where T: class, IEntity, new()

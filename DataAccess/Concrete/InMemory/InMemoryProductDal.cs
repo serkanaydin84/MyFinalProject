@@ -1,5 +1,6 @@
 ﻿using DataAccess.Abstract;
 using Entities.Concrete;
+using Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +54,11 @@ namespace DataAccess.Concrete.InMemory
             _products.Remove(productToDelete);
         }
 
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
         public Product Get(Expression<Func<Product, bool>> filter)
         {
             throw new NotImplementedException();
@@ -74,6 +80,21 @@ namespace DataAccess.Concrete.InMemory
         {
             // istediğim kategoriye uygun kategorileri liste olarak döndür
             return _products.Where(p => p.CategoryId == categoryId).ToList();
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public List<ProductDetailDto> GetProductDetails()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string ToString()
+        {
+            return base.ToString();
         }
 
         public void Update(Product product)

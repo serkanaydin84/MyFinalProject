@@ -8,6 +8,10 @@ using Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Validation;
+using Core.CrossCuttingConcerns.Validation;
+using FluentValidation;
 
 namespace Business.Concrete
 {
@@ -22,33 +26,30 @@ namespace Business.Concrete
             _productDal = productDal;
         }
 
+        [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
-            // buisness codes
-            if (product.ProductName.Length < 2)
-            {
-                // magic strings
-                return new ErrorResult(Messages.ProductNameInValid);
-            }
+            // business codes
+
             _productDal.Add(product);
             return new SuccessResult("Ürün eklendi");
         }
 
         public IDataResult<List<Product>> GetAll()
         {
-            // hergün saat 22'de sistemi kapatmak istiyoruz yani kullanıcıya 22'den sonra hata versin
+            // her gün saat 22'de sistemi kapatmak istiyoruz yani kullanıcıya 22'den sonra hata versin
             if (DateTime.Now.Hour == 22)
             {
                 return new ErrorDataResult<List<Product>>(Messages.MaintenanceTime);
             }
-            // İş Kodları yazılır - buisness codes
+            // İş Kodları yazılır - business codes
             return new SuccessDataResult<List<Product>>(_productDal.GetAll(), Messages.ProductsListed);
         }
 
         // KATEGORİYE GÖRE ÜRÜNLER GET EDİLİYOR
         public IDataResult<List<Product>> GetAllByCategoryID(int id)
         {
-            return  new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.CategoryId == id));
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.CategoryId == id));
         }
 
         // ÜRÜNÜN ID SİNE GÖRE DETAYI GET EDİLİYOR

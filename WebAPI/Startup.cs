@@ -32,10 +32,10 @@ namespace WebAPI
             services.AddControllers();
 
             // bu kodun anlamý birisi arkaplanda IProductService isterse ona ProductManager ver
-            services.AddSingleton<IProductService, ProductManager>();
-
-            // bu kodun anlamý birisi arkaplanda IProductDal isterse ona EfProductDal ver
-            services.AddSingleton<IProductDal, EfProductDal>();
+            //services.AddSingleton<IProductService, ProductManager>();
+            //
+            //// bu kodun anlamý birisi arkaplanda IProductDal isterse ona EfProductDal ver
+            //services.AddSingleton<IProductDal, EfProductDal>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

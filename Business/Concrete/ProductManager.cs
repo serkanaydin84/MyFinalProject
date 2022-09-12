@@ -7,32 +7,56 @@ using Entities.Concrete;
 using Entities.DTOs;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Business.CCS;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Validation;
 using Core.CrossCuttingConcerns.Validation;
+using Core.Utilities.Business;
 using FluentValidation;
 
 namespace Business.Concrete
 {
     public class ProductManager : IProductService
     {
+        //ÖNEMLİ NOT: Bir Manager class'ına kendi DAL class'ı hariç başka bir DAL class'ı enjekte edilemez
+        //ANCAK, başka bir Service enjekte edilebilir
+
         // Bu komut ile ister Memory de ister EntityFramework ile çalışabilirsin
         IProductDal _productDal;
+        ICategoryService _categoryService;
 
         // bu constractor ile hangi veritabanı olursa olsun çalışır. Sadece istediğimiz veritabanını seçmemiz gerekiyor
-        public ProductManager(IProductDal productDal)
+        public ProductManager(IProductDal productDal, ICategoryService categoryService)
         {
             _productDal = productDal;
+            _categoryService = categoryService;
         }
 
         [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
-            // business codes
+            //business codes
+            //iş kurallarını tek tek Core katmanındaki BusinessRules class'ına yolluyoruz
+            IResult result = BusinessRules.Run(CheckIfProductNameExists(product.ProductName),
+                CheckIfProductCountOfCategoryCorrect(product.CategoryId),
+                CheckIfCategoryLimitExcded());
 
+            //herhangi bir kuralda hata varsa
+            if (result != null)
+            {
+                //hata kuralını döndür
+                return result;
+            }
             _productDal.Add(product);
-            return new SuccessResult("Ürün eklendi");
+            return new SuccessResult(Messages.ProductAdded);
+        }
+        
+        [ValidationAspect(typeof(ProductValidator))]
+        public IResult Update(Product product)
+        {
+            throw new NotImplementedException();
         }
 
         public IDataResult<List<Product>> GetAll()
@@ -67,6 +91,48 @@ namespace Business.Concrete
         public IDataResult<List<ProductDetailDto>> GetProducDetails()
         {
             return new SuccessDataResult<List<ProductDetailDto>>(_productDal.GetProductDetails());
+        }
+
+
+        //////////////////////////////////////////////////////////////////////////////////
+        // *******************************************************************************
+        //                          İŞ KURALLARI
+        // *******************************************************************************
+        //////////////////////////////////////////////////////////////////////////////////
+        ///
+        /// 
+        //Bir kategoriye belirlenen sayıdan fazla ürünün eklenmemesini sağlayan kontrol
+        private IResult CheckIfProductCountOfCategoryCorrect(int categoryId)
+        {
+            var result = _productDal.GetAll(p => p.CategoryId == categoryId).Count;
+            if (result >= 10)
+            {
+                return new ErrorResult(Messages.ProductCountOfCategoryError);
+            }
+            return new SuccessResult();
+        }
+
+        //Aynı isimli birden fazla ürünün kaydedilmemesi sağlayan kontrol
+        private IResult CheckIfProductNameExists(string productName)
+        {
+            var result = _productDal.GetAll(p => p.ProductName == productName).Any();
+            if (result)
+            {
+                return new ErrorResult(Messages.ProductNameAlreadyExists);
+            }
+
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfCategoryLimitExcded()
+        {
+            var result = _categoryService.GetAll();
+            if (result.Data.Count>15)
+            {
+                return new ErrorResult(Messages.CategoryLimitExceded);
+            }
+
+            return new SuccessResult();
         }
     }
 }

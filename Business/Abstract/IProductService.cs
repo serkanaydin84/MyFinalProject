@@ -19,5 +19,6 @@ namespace Business.Abstract
 
         // IResult hem sonucu hem de mesajı döndürebilir
         IResult Add(Product product);
+        IResult Update(Product product);
     }
 }

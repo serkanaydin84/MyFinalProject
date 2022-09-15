@@ -39,9 +39,10 @@ namespace Business.Concrete
         {
             //business codes
             //iş kurallarını tek tek Core katmanındaki BusinessRules class'ına yolluyoruz
-            IResult result = BusinessRules.Run(CheckIfProductNameExists(product.ProductName),
-                CheckIfProductCountOfCategoryCorrect(product.CategoryId),
-                CheckIfCategoryLimitExcded());
+            IResult result = BusinessRules.Run(CheckIfProductNameExists(product.ProductName)
+                //CheckIfProductCountOfCategoryCorrect(product.CategoryId)
+                //CheckIfCategoryLimitExceded()
+                );
 
             //herhangi bir kuralda hata varsa
             if (result != null)
@@ -124,10 +125,10 @@ namespace Business.Concrete
             return new SuccessResult();
         }
 
-        private IResult CheckIfCategoryLimitExcded()
+        private IResult CheckIfCategoryLimitExceded()
         {
-            var result = _categoryService.GetAll();
-            if (result.Data.Count>15)
+            var result = _categoryService.GetList();
+            if (result.Data.Count>35)
             {
                 return new ErrorResult(Messages.CategoryLimitExceded);
             }

@@ -16,7 +16,7 @@ namespace ConsoleUI
         private static void CategoryTest()
         {
             CategoryManager categoryManager = new CategoryManager(new EfCategoryDal());
-            foreach (var category in categoryManager.GetAll().Data)
+            foreach (var category in categoryManager.GetList().Data)
             {
                 Console.WriteLine(category.CategoryName);
             }
